@@ -5,13 +5,13 @@ import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { JwtStrategy } from './strategy/jwt-strategy';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly config: ConfigService,
+    private readonly jwtStrategy: JwtStrategy
   ) {}
 
   async signup(signupDTO: AuthDto) {
@@ -49,26 +49,7 @@ export class AuthService {
     if (!comparePassword) {
       throw new ForbiddenException('Invalid password');
     }
-    return (this.signToken(user.id, user.email));
+    return (this.jwtStrategy.signToken(user.id, user.email));
   }
 
-  async signToken(
-    userId: Number,
-    email: string,
-  ): Promise<{ access_token: string, message: string }> {
-    const payload = {
-      sub: userId,
-      email,
-    };
-
-    const secret = this.config.get('JWT-SECRET');
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
-      secret: 'secret',
-    });
-    return {
-        message: "Successful",
-      access_token: token,
-    };
-  }
 }

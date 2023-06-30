@@ -12,19 +12,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BookmarkService } from './bookmark.service';
-import { GetUser } from 'src/auth/decorator';
+import { GetUser } from '../auth/decorator';
 import { CreateBookmarkDTO, EditBookmarkDTO } from './dto';
-import { JwtGuard } from 'src/auth/guard';
+import { JwtGuard } from '../auth/guard';
+import { User } from '@prisma/client';
 
 
 @UseGuards(JwtGuard)
-@Controller('bookmark')
+@Controller('bookmarks')
 export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Get()
-  getBookmarks(@GetUser('id') userId: number) {
+  @Get('all')
+  getBookmarks(@GetUser() userId: any
+  ) {
+    console.log(userId)
     return this.bookmarkService.getBookmarks(userId);
   }
 
